@@ -57,7 +57,7 @@ def filter_data(data):
     # 0.7 damping coefficient
     order = 2
     fs = len(data) # sampling rate       
-    cutoff = 14 # cuttof freq.
+    cutoff = 14 # cutoff freq.
     filtered_data =  butterworth_lowpass_filter(filtered_data, cutoff, fs, order)
 
     # Median filter with 14-day window
