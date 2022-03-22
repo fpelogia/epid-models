@@ -7,30 +7,11 @@ import pylab
 import readline
 import code
 
-'''
-f(t) - Richards Model (Assymetric Sigmoid)
-t: time array
-A, tp, delta, nu: model parameters
-'''
-def f_t(t, A, tp, delta, nu ):
-    return A / ((1 + nu * np.exp(-1*(t - tp)/(delta)))**(1/nu))
-
-# Vectorized version of f(t)
-f_t = np.vectorize(f_t)
-
-'''
-f'(t) -Derivative of f(t) with respect to t
-'''
-def deriv_f_t(t, A, tp, delta, nu ):
-    g = lambda x: np.exp(-1*(t - tp)/delta)
-    return (A * g(t))/(delta * (1 + nu*g(t))**((nu+1)/nu))
-
-# Vectorized version of df(t)/dt
-deriv_f_t = np.vectorize(deriv_f_t)
-
 # Moving average filter
 def moving_average(x, win_size):
-    return np.convolve(x, np.ones(win_size), 'valid') / win_size
+    filtered = np.convolve(x, np.ones(win_size), 'valid') / win_size
+    filtered = np.append(np.zeros(win_size-1), filtered) # fill the w-1 first slots with zeros
+    return filtered
 
 # Median filter
 def median_filter(x, win_size):
@@ -38,7 +19,9 @@ def median_filter(x, win_size):
     nrows = ((x.size-win_size)//S)+1
     n = x.strides[0]
     strided = np.lib.stride_tricks.as_strided(x, shape=(nrows,win_size), strides=(S*n,n))
-    return np.median(strided,axis=1)
+    filtered  = np.median(strided,axis=1)
+    filtered = np.append(np.zeros(win_size-1), filtered) # fill the w-1 first slots with zeros
+    return filtered
 
 def butterworth_lowpass_filter(data, cutoff_freq, fs, order=2):
     #fs is the sampling rate
@@ -51,10 +34,9 @@ def butterworth_lowpass_filter(data, cutoff_freq, fs, order=2):
 
 def filter_data(data):    
     # Moving average with 21-day window
-    filtered_data = moving_average(data, 21)
+    filtered_data = moving_average(data, 14)
     
     # 2nd Order Low-Pass Filter with 14-day window
-    # 0.7 damping coefficient
     order = 2
     fs = len(data) # sampling rate       
     cutoff = 14 # cutoff freq.
@@ -62,6 +44,10 @@ def filter_data(data):
 
     # Median filter with 14-day window
     filtered_data = median_filter(filtered_data, 14)
+
+    # Reduce the delay effect introduced by the filtering process
+    # Advance the signal by 20 days
+    filtered_data = filtered_data[20:]
 
     return filtered_data
 
@@ -89,7 +75,7 @@ def new_wave_detection(sec_der, abs_threshold):
 
 def main():    
     #import data
-    data = pd.read_csv("./Datasets/jerusalem.csv")  
+    data = pd.read_csv("Datasets/jerusalem.csv")  
 
     # Filter data to reduce noise effects
     # Normalize by maximum value
@@ -105,7 +91,10 @@ def main():
     axs[0].set_xlabel('t (days)')
     axs[0].set_ylabel('daily number of cases')
 
+    unf_daily_n_cases = daily_n_cases
     daily_n_cases = filter_data(daily_n_cases)
+
+    axs[0].plot(daily_n_cases)
 
     axs[1].set_title('Filtered numerical first derivative')
     axs[1].plot(daily_n_cases)
@@ -137,11 +126,12 @@ def main():
     # Graph with acc. data and its first two derivatives
     fig, axs = plt.subplots(3, 1, figsize=(7,7)) # 3 rows, 1 col
     plt.tight_layout(pad=1.5)
-    axs[0].plot(normalized_acc_n_cases[:len(daily_n_cases)]) # para alinhar as retas de nova onda
-    axs[0].vlines(x_t, 1, 3e-4, colors='dimgray', linestyles='dashdot', zorder=1, label="new wave transition")
+    axs[0].plot(normalized_acc_n_cases) # para alinhar as retas de nova onda
+    axs[0].vlines(x_t, 1, 3e-4, colors='darkgray', linestyles='dashdot', zorder=1, label="new wave transition")
     axs[0].set_title('Normalized accumulated number of cases')
     axs[0].set_ylabel("$cases$")
 
+    axs[1].plot(unf_daily_n_cases, c='gray')
     axs[1].plot(daily_n_cases)
     axs[1].ticklabel_format(axis='y',style='sci',scilimits=(-2,-2))
     axs[1].vlines(x_t, min(daily_n_cases), max(daily_n_cases), colors='dimgray', linestyles='dashdot', zorder=1, label="new wave transition")
