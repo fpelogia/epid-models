@@ -47,7 +47,8 @@ def filter_data(data):
 
     # Reduce the delay effect introduced by the filtering process
     # Advance the signal by 20 days
-    filtered_data = filtered_data[20:]
+    # Buenos Aires - 27
+    filtered_data = filtered_data[27:]
 
     return filtered_data
 
@@ -75,11 +76,12 @@ def new_wave_detection(sec_der, abs_threshold):
 
 def main():    
     #import data
-    data = pd.read_csv("Datasets/jerusalem.csv")  
+    #data = pd.read_csv("Datasets/jerusalem.csv")  
+    data = pd.read_csv("Datasets/buenos_aires_obitos.csv")
 
     # Filter data to reduce noise effects
     # Normalize by maximum value
-    normalized_acc_n_cases = data.total_confirmed / max(data.total_confirmed)
+    normalized_acc_n_cases = data.cumulative_deceased / max(data.cumulative_deceased)
 
 
     t = np.linspace(0, len(normalized_acc_n_cases), len(normalized_acc_n_cases))
