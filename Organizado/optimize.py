@@ -202,7 +202,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
     plt.tight_layout(rect=[0, 0, 1, 0.98])
     #plt.savefig(f'output/Daily_{city_name}_2w_pred', facecolor='white', dpi=100)
     #plt.savefig(f'ESTADOSP/{city_name}', facecolor='white', dpi=200)
-    plt.show()
+    plt.show(block=False)
 
 
 

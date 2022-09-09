@@ -46,9 +46,8 @@ def filter_data(data):
     filtered_data = median_filter(filtered_data, 14)
 
     # Reduce the delay effect introduced by the filtering process
-    # Advance the signal by 20 days
-    # Buenos Aires - 27
-    filtered_data = filtered_data[27:]
+    # Advance the signal by 25 days
+    filtered_data = filtered_data[25:]
 
     return filtered_data
 
