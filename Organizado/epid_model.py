@@ -46,7 +46,7 @@ def share_variables(n_days_p, n_sig_p, sig_params_p):
     global n_days
     global n_sig
     global sig_params
-    print('SHARING: ', n_days_p, n_sig_p, sig_params_p)
+    #print('SHARING: ', n_days_p, n_sig_p, sig_params_p)
     n_days = n_days_p
     n_sig = n_sig_p
     sig_params = sig_params_p

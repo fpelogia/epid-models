@@ -57,11 +57,14 @@ def constr2(x):
     return x[1]
 def constr3(x):
     # delta >= 0.1
-    return x[2] - 1e-1
+    return x[2] - 1e-3
 def constr4(x):
     # nu > 0.1
     return x[3] - 1e-1
 
+initial_cond = lambda y_t : [] 
+
+update_cond = lambda tp0A0 : [] 
 
 def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
     global acc_data
@@ -83,7 +86,8 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
     con2 = {'type':'ineq', 'fun':constr2}
     con3 = {'type':'ineq', 'fun':constr3}
     con4 = {'type':'ineq', 'fun':constr4}     
-    cons = [con1, con2, con3, con4] 
+    #cons = [con1, con2, con3, con4] 
+    cons = [con1, con2, con3] 
 
     n_weeks_pred = 2
     n_sig = 1
@@ -106,15 +110,10 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
         # Step 1 - Optimize a symmetric sigmoid (nu = 1)
         # Initial values
         if(i == 0):
-            y_t = acc_data[:n_days]
-            A0 = 2*max(y_t)
-            #A0 = 1*max(y_t) # SP
-            tp0 = (2/3)*len(y_t)
-            delta0 = (1/4)*len(y_t)
-            nu0 = 1
+            y_t = acc_data[:n_days]            
+            [A0, tp0, delta0, nu0] = initial_cond(y_t)
         else:
-            tp0 += 70 
-            A0 *= 0.005
+            [A0, tp0] = update_cond(A0, tp0)
 
         x0 = [A0, tp0, delta0, nu0]
         sol = minimize(loss_f_sym, x0, constraints=cons, args=('MSE'), method='SLSQP')
@@ -197,7 +196,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
         axs[i][1].legend(loc=2) # upper left    
         n_sig += 1
         sig_params.append([A, tp, delta, nu])
-        #print(f'Parameters: {sig_params}\n==================================')    
+        print(f'Parameters: {sig_params}\n==================================')    
 
     plt.tight_layout(rect=[0, 0, 1, 0.98])
     #plt.savefig(f'output/Daily_{city_name}_2w_pred', facecolor='white', dpi=100)
