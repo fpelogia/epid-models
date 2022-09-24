@@ -78,7 +78,7 @@ def new_wave_detection(sec_der, abs_threshold):
 #  optional (visual): show transition points graph ?
 #  optional (city_name): city name 
 #  optional (threshold): threshold 
-def get_transition_points(data, visual=False, city_name = "", threshold = 3e-5):    
+def get_transition_points(data, visual=False, city_name = "", threshold = 3e-5, indicator = 'cases'):    
     # Normalize by maximum value
     normalized_acc_n_cases = data / max(data)
 
@@ -106,20 +106,20 @@ def get_transition_points(data, visual=False, city_name = "", threshold = 3e-5):
         plt.suptitle(f"{city_name} threshold {abs_threshold} ", fontsize=16)
         axs[0].plot(normalized_acc_n_cases) # para alinhar as retas de nova onda
         axs[0].vlines(x_t, 1, 3e-4, colors='dimgray', linestyles='dashdot', zorder=1, label="new wave transition")
-        axs[0].set_title('Normalized accumulated number of cases')
-        axs[0].set_ylabel("$cases$")
+        axs[0].set_title(f'Normalized accumulated number of {indicator}')
+        axs[0].set_ylabel(f"${indicator}$")
 
         axs[1].plot(unf_daily_n_cases, c='darkgray')
         axs[1].plot(daily_n_cases)
         axs[1].ticklabel_format(axis='y',style='sci',scilimits=(-2,-2))
         axs[1].vlines(x_t, min(unf_daily_n_cases), max(unf_daily_n_cases), colors='dimgray', linestyles='dashdot', zorder=1, label="new wave transition")
         axs[1].set_title('First derivative')
-        axs[1].set_ylabel("$cases$ / $day$")
+        axs[1].set_ylabel(f"${indicator}$ / $day$")
 
         axs[2].ticklabel_format(axis='y',style='sci',scilimits=(-4,-4))
         axs[2].set_title("Second derivative - New wave detection")
         axs[2].set_xlabel("t (days)")
-        axs[2].set_ylabel("$cases$ / $day^2$")
+        axs[2].set_ylabel(f"${indicator}$ / $day^2$")
         axs[2].plot(sec_der, zorder=1) # obs: check if this scaling is correct
         axs[2].hlines([-1*abs_threshold, abs_threshold], 0, len(sec_der), colors='silver', linestyles='dashed', zorder=1, label=f"threshold = $\pm${abs_threshold}")
         axs[2].vlines(x_t, -3e-4, 3e-4, colors='dimgray', linestyles='dashdot', zorder=1, label="new wave transition")

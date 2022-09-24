@@ -51,13 +51,13 @@ def loss_f_sym(x, lf):
 # Inequality contraints need to return f(x), where f(x) >= 0
 def constr1(x):
     # A >= 0
-    return x[0]
+    return x[0] 
 def constr2(x):
     # tp >= 0
-    return x[1]
+    return x[1] 
 def constr3(x):
     # delta >= 0.1
-    return x[2] - 1e-3
+    return x[2]
 def constr4(x):
     # nu > 0.1
     return x[3] - 1e-1
@@ -66,7 +66,7 @@ initial_cond = lambda y_t : []
 
 update_cond = lambda tp0A0 : [] 
 
-def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
+def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', scaling_factor = 1):
     global acc_data
     global daily_data
     global n_days
@@ -76,8 +76,6 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
 
     acc_data = acc_data_p
     daily_data = daily_data_p
-
-    scaling_factor = 1
 
     t = np.linspace(0, len(acc_data)-1, len(acc_data))
 
@@ -96,7 +94,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
     # set font-size
     plt.rcParams.update({'font.size': 12})
 
-    fig, axs = plt.subplots(len(x_nw), 2, figsize=(14,12))
+    fig, axs = plt.subplots(len(x_nw), 2, figsize=(14,12 + 3*(n_sig % 3)))
     fig.suptitle(f'{city_name}')
 
     for i in range(len(x_nw)):
@@ -156,7 +154,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
         axs[i][0].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(acc_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
         axs[i][0].plot(scaling_factor * y_m, label='Model', c='r')
         axs[i][0].set_xlabel('t (days)')
-        axs[i][0].set_ylabel('acc. number of cases')
+        axs[i][0].set_ylabel(f'acc. number of {indicator}')
         
         axs[i][0].text(0, scaling_factor * max(y_t), f'rRMSE: {round(100*rel_rmse, 3)}%')
 
@@ -192,7 +190,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
         axs[i][1].plot(scaling_factor * np.array(y_m_daily), label='Model', c='r')
         axs[i][1].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(daily_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
         axs[i][1].set_xlabel('t (days)')
-        axs[i][1].set_ylabel('daily number of cases')
+        axs[i][1].set_ylabel(f'daily number of {indicator}')
         axs[i][1].legend(loc=2) # upper left    
         n_sig += 1
         sig_params.append([A, tp, delta, nu])
@@ -202,6 +200,8 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw):
     #plt.savefig(f'output/Daily_{city_name}_2w_pred', facecolor='white', dpi=100)
     #plt.savefig(f'ESTADOSP/{city_name}', facecolor='white', dpi=200)
     plt.show(block=False)
+
+    return sig_params
 
 
 
