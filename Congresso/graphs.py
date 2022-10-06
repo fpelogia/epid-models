@@ -23,18 +23,18 @@ def main():
     # Definições iniciais
     t = np.linspace(0, 12, 50)
     fig, axs = plt.subplots(2, 1, figsize=(5,8))
-    fig.suptitle('Modelo de Richards')
+    fig.suptitle('Richards Model')
     #C_t = logist_t(0.8, 6, 10, t) #Logístico
     C_t = richards_t(t, 10, 6, 0.6, 3)
     #C_t = exp_t(1, 0.5, t)
     axs[0].plot(C_t[2:])
-    axs[0].set_xlabel('t (dias)')
-    axs[0].set_ylabel('C(t)')
+    axs[0].set_xlabel('t (days)')
+    axs[0].set_ylabel('D(t)')
 
     der = forward_euler(t, 1, C_t, 0)
     axs[1].plot(der[2:])
-    axs[1].set_xlabel('t (dias)')
-    axs[1].set_ylabel(r'$\frac{dC}{dt}(t)$')
+    axs[1].set_xlabel('t (days)')
+    axs[1].set_ylabel(r'$\frac{dD}{dt}(t)$')
     plt.tight_layout()
     #plt.show() 
     plt.savefig('richards-model.png')
