@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.optimize import minimize
+from scipy.optimize import minimize, least_squares
 from epid_model import model, model_daily, share_variables 
 # imports for debugging purposes
 import readline
@@ -48,7 +48,31 @@ def loss_f_sym(x, lf):
         return ITSE([x[0], x[1], x[2], 1]) 
     else:
         return MSE([x[0], x[1], x[2], 1]) 
-    
+
+def residuals_f(x):
+    # model parameters
+    A = x[0]
+    tp = x[1]
+    delta = x[2]
+    nu = x[3]
+
+    y_t = acc_data[:n_days]
+    y_m = model(t[:n_days], A, tp, delta, nu)
+    return np.array(y_t - y_m)
+
+def residuals_f_sym(x):
+    # model parameters
+    A = x[0]
+    tp = x[1]
+    delta = x[2]
+    nu = 1
+
+    y_t = acc_data[:n_days]
+    y_m = model(t[:n_days], A, tp, delta, nu)
+    return np.array(y_t - y_m)
+
+
+
 # Inequality contraints need to return f(x), where f(x) >= 0
 def constr1(x):
     # A >= 0
@@ -116,8 +140,8 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', scali
             [A0, tp0] = update_cond(A0, tp0)
 
         x0 = [A0, tp0, delta0, nu0]
-        sol = minimize(loss_f_sym, x0, constraints=cons, args=('MSE'), method='SLSQP')
-        
+        #sol = minimize(loss_f_sym, x0, constraints=cons, args=('MSE'), method='SLSQP')
+        sol = least_squares(residuals_f_sym, x0, method='lm')
         #print(sol)
 
         # Optimal values
@@ -129,11 +153,8 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', scali
         [A0, tp0, delta0, nu0] = sol.x
 
         x0 = [A0, tp0, delta0, nu0]
-        
-        if(n_sig == 1):
-            sol = minimize(loss_f, x0, constraints=cons, args=('MSE'), method='SLSQP')
-        else:
-            sol = minimize(loss_f_sym, x0, constraints=cons, args=('MSE'), method='SLSQP')
+        #sol = minimize(loss_f, x0, constraints=cons, args=('MSE'), method='SLSQP')
+        sol = least_squares(residuals_f, x0, method='lm')
 
         # Relative RMSE   (np.sqrt(MSE)/max(acc_data))
         rel_rmse = np.sqrt(sol.fun) / max(acc_data[:n_days])
@@ -163,7 +184,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', scali
         axs[i][0].set_xlabel('t (days)')
         axs[i][0].set_ylabel(f'acc. number of {indicator}')
         
-        axs[i][0].text(0, scaling_factor * max(y_t), f'rRMSE: {round(100*rel_rmse, 3)}%')
+        #axs[i][0].text(0, scaling_factor * max(y_t), f'rRMSE: {round(100*rel_rmse, 3)}%')
 
         X_detail = t[n_days - 7*n_weeks_pred: n_days]
         Y_detail = y_m[n_days - 7*n_weeks_pred: n_days]
@@ -176,7 +197,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', scali
 
         print('rRMSE Predictions: ', rel_rmse_pred)
 
-        axs[i][0].text(0, scaling_factor *0.93*max(y_t), f'rRMSE Predictions: {round(100*rel_rmse_pred, 3)}%')
+        #axs[i][0].text(0, scaling_factor *0.93*max(y_t), f'rRMSE Predictions: {round(100*rel_rmse_pred, 3)}%')
 
         # detail prediction
         if(n_sig < 4):

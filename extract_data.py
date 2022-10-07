@@ -2,27 +2,44 @@ import pandas as pd
 
 def main():
     # open dataset
-    data = pd.read_csv("../../Israel/cidades_israel.csv")
+    #data = pd.read_csv("../../Israel/cidades_israel.csv")
+    data = pd.read_csv("../../Japan/japao_estados.csv")
 
     # filter data from specific city
-    df = data[data.cidade == 'Jerusalem']
+    #df = data[data.cidade == 'Jerusalem']
+    #df = data[data.estado == 'Tokyo']
+    #df = data[data.estado == 'Osaka']
+    df = data[data.estado == 'Fukuoka']
 
+    # cols_to_keep = [
+    #     'date', 
+    #     'cidade', 
+    #     'new_confirmed', 
+    #     'new_deceased', 
+    #     'new_recovered', 
+    #     'total_confirmed', 
+    #     'total_deceased', 
+    #     'total_recovered'
+    # ]
+    
+    
     cols_to_keep = [
         'date', 
-        'cidade', 
+        'estado', 
         'new_confirmed', 
         'new_deceased', 
         'new_recovered', 
-        'total_confirmed', 
-        'total_deceased', 
-        'total_recovered'
+        'cumulative_confirmed', 
+        'cumulative_deceased', 
+        'cumulative_recovered'
     ]
     
+
     # Remove unnecessary columns
     df.drop(df.columns.difference(cols_to_keep), 1, inplace=True)
 
     # Save reduced dataset
-    df.to_csv("Datasets/jerusalem.csv")
+    df.to_csv("Datasets/fukuoka.csv")
 
     print("\nSuccessful Extraction!")
 
