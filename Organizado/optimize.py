@@ -92,6 +92,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
     #n_weeks_pred = 0
     n_sig = 1
     sig_params = []
+    rel_rmse_list = []
 
     # set font-size
     plt.rcParams.update({'font.size': 12})
@@ -103,8 +104,8 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
         n_days = x_nw[i] - 7*n_weeks_pred
 
         share_variables(n_days, n_sig, sig_params)
-        print(f'========= Wave nr {i + 1} =========')
-        print('From 0 to ', n_days)
+        #print(f'========= Wave nr {i + 1} =========')
+        #print('From 0 to ', n_days)
 
         #print('Step 1')
         # Step 1 - Optimize a symmetric sigmoid (nu = 1)
@@ -137,7 +138,8 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
 
         # Relative RMSE   (np.sqrt(MSE)/max(acc_data))
         rel_rmse = np.sqrt(sol.fun) / max(acc_data[:n_days])
-        print('rRMSE: ', rel_rmse)
+        rel_rmse_list.append(f'{round(100*rel_rmse, 3)}%')
+        #print('rRMSE: ', rel_rmse)
 
         # Optimal values
         [A, tp, delta, nu] = sol.x
@@ -176,7 +178,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
             mse_pred = (1/len(y_t_pred))*np.sum((y_t_pred - y_m_pred)**2)
             rel_rmse_pred = np.sqrt(mse_pred) / max(acc_data[:n_days])
 
-            print('rRMSE Predictions: ', rel_rmse_pred)
+            #print('rRMSE Predictions: ', rel_rmse_pred)
 
             axs[i][0].text(0, scaling_factor *0.90*max(y_t), f'rRMSE Predictions: {round(100*rel_rmse_pred, 3)}%')
 
@@ -204,14 +206,14 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
         axs[i][1].legend(loc=2) # upper left    
         n_sig += 1
         sig_params.append([A, tp, delta, nu])
-        print(f'Parameters: {sig_params}\n==================================')    
+        #print(f'Parameters: {sig_params}\n==================================')    
 
     plt.tight_layout(rect=[0, 0, 1, 0.98])
     #plt.savefig(f'output/Daily_{city_name}_2w_pred', facecolor='white', dpi=100)
     #plt.savefig(f'ESTADOSP/{city_name}', facecolor='white', dpi=200)
     plt.show(block=False)
 
-    return sig_params
+    return sig_params, rel_rmse_list
 
 
 
