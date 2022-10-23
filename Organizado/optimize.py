@@ -114,6 +114,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
             y_t = acc_data[:n_days]            
             [A0, tp0, delta0, nu0] = initial_cond(y_t)
         else:
+            print(f'(optimal) Sigmoid #{n_sig - 1} - A0:{A0} | tp0:{tp0} | delta0:{delta0} | nu0:{nu0} ')
             [A0, tp0] = update_cond(A0, tp0)
 
         x0 = [A0, tp0, delta0, nu0]
@@ -131,10 +132,12 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
 
         x0 = [A0, tp0, delta0, nu0]
         
-        if(n_sig == 1):
-            sol = minimize(loss_f, x0, constraints=cons, args=('MSE'), method='SLSQP')
-        else:
-            sol = minimize(loss_f_sym, x0, constraints=cons, args=('MSE'), method='SLSQP')
+        #if(n_sig == 1):
+        print(f'Sigmoid #{n_sig} - A0:{A0} | tp0:{tp0} | delta0:{delta0} | nu0:{nu0} ')
+        sol = minimize(loss_f, x0, constraints=cons, args=('MSE'), method='SLSQP')
+        #else:
+        #    print(f'Sigmoid #{n_sig} - A0:{A0} | tp0:{tp0} | delta0:{delta0} | nu0:{1} ')
+        #    sol = minimize(loss_f_sym, x0, constraints=cons, args=('MSE'), method='SLSQP')
 
         # Relative RMSE   (np.sqrt(MSE)/max(acc_data))
         rel_rmse = np.sqrt(sol.fun) / max(acc_data[:n_days])
