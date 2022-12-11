@@ -36,8 +36,8 @@ def main():
     axs[1].set_xlabel('t (days)')
     axs[1].set_ylabel(r'$\frac{dD}{dt}(t)$')
     plt.tight_layout()
-    #plt.show() 
-    plt.savefig('richards-model.png')
+    plt.show() 
+    #plt.savefig('richards-model.png')
 
 if __name__ == "__main__":
     main()

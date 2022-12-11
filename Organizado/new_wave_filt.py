@@ -58,31 +58,37 @@ def get_transition_points(data, visual=False, city_name = "", threshold = 3e-5, 
 
     if(visual):        
         # Graph with acc. data and its first two derivatives
-        fig, axs = plt.subplots(3, 1, figsize=(10,14)) # 3 rows, 1 col
+        fig, axs = plt.subplots(3, 1, figsize=(11,13)) # 3 rows, 1 col
         plt.tight_layout(pad=1.5)
-        plt.suptitle(f"{city_name} threshold {abs_threshold} ", fontsize=16)
+        #plt.suptitle(f"{city_name} threshold {abs_threshold} ", fontsize=16)
+        plt.suptitle(f"Pontos de transição - {city_name} - threshold {abs_threshold} ", fontsize=16)
         axs[0].plot(normalized_acc_n_cases) # para alinhar as retas de nova onda
         axs[0].vlines(x_t, 1, 3e-4, colors='dimgray', linestyles='dashdot', zorder=1, label="new wave transition")
-        axs[0].set_title(f'Normalized accumulated number of {indicator}')
-        axs[0].set_ylabel(f"${indicator}$")
+        #axs[0].set_title(f'Normalized accumulated number of {indicator}')
+        axs[0].set_title(f'Número acumulado de casos normalizado')
+        #axs[0].set_ylabel(f"${indicator}$")
+        axs[0].set_ylabel(f"$casos$")
 
         axs[1].plot(unf_daily_n_cases, c='darkgray')
         axs[1].plot(daily_n_cases)
         axs[1].ticklabel_format(axis='y',style='sci',scilimits=(-2,-2))
         axs[1].vlines(x_t, min(unf_daily_n_cases), max(unf_daily_n_cases), colors='dimgray', linestyles='dashdot', zorder=1, label="new wave transition")
-        axs[1].set_title('First derivative')
-        axs[1].set_ylabel(f"${indicator}$ / $day$")
+        axs[1].set_title('Primeira derivada')
+        #axs[1].set_ylabel(f"${indicator}$ / $day$")
+        axs[1].set_ylabel(f"$casos / dia$")
 
         axs[2].ticklabel_format(axis='y',style='sci',scilimits=(-4,-4))
-        axs[2].set_title("Second derivative - New wave detection")
-        axs[2].set_xlabel("t (days)")
-        axs[2].set_ylabel(f"${indicator}$ / $day^2$")
+        axs[2].set_title("Segunda derivada - Detecção de novas ondas")
+        axs[2].set_xlabel("t (dias)")
+        #axs[2].set_ylabel(f"${indicator}$ / $day^2$")
+        axs[2].set_ylabel(f"$casos$ / $dia^2$")
         axs[2].plot(sec_der, zorder=1) # obs: check if this scaling is correct
         axs[2].hlines([-1*abs_threshold, abs_threshold], 0, len(sec_der), colors='silver', linestyles='dashed', zorder=1, label=f"threshold = $\pm${abs_threshold}")
-        axs[2].vlines(x_t, -3e-4, 3e-4, colors='dimgray', linestyles='dashdot', zorder=1, label="new wave transition")
-        axs[2].scatter(x_t, y_t, s=15, c='r', zorder=2, label="sign change in the second derivative")
+        axs[2].vlines(x_t, -3e-4, 3e-4, colors='dimgray', linestyles='dashdot', zorder=1, label="transição para nova onda")
+        axs[2].scatter(x_t, y_t, s=15, c='r', zorder=2, label="mudança de sinal na segunda derivada")
         plt.legend()
         plt.tight_layout()
         #plt.savefig(f'{city_name}_nw', facecolor='white', dpi=200)
+        plt.savefig(f'Figuras/TG_T1_NW_{city_name}', facecolor='white', dpi=600)
         plt.show(block=False)
     return x_t
