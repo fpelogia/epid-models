@@ -170,8 +170,8 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
             axs[i][0].set_xlabel('t (dias)')
             #axs[i][0].set_ylabel(f'acc. number of {indicator}')
             axs[i][0].set_ylabel(f'núm. de casos')
-            
-            axs[i][0].text(0, scaling_factor * 0.96 * max(y_t), f'rRMSE: {round(100*rel_rmse, 3)}%')
+            axs[i][0].legend(loc=4)
+            axs[i][0].text(0, scaling_factor * 0.96 * max(y_t), f'rel. RMSE: {round(100*rel_rmse, 3)}%')
 
         if (n_weeks_pred > 0):
             X_detail = t[n_days - 7*n_weeks_pred: n_days]
@@ -185,7 +185,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
 
             #print('rRMSE Predictions: ', rel_rmse_pred)
             if(visual):
-                axs[i][0].text(0, scaling_factor *0.90*max(y_t), f'rRMSE Predictions: {round(100*rel_rmse_pred, 3)}%')
+                axs[i][0].text(0, scaling_factor *0.90*max(y_t), f'rel. RMSE Predictions: {round(100*rel_rmse_pred, 3)}%')
     
                 # detail prediction
                 if(n_sig < 4):
@@ -219,7 +219,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
         plt.tight_layout(rect=[0, 0, 1, 0.98])
         #plt.savefig(f'output/Daily_{city_name}_2w_pred', facecolor='white', dpi=100)
         #plt.savefig(f'ESTADOSP/{city_name}', facecolor='white', dpi=200)
-        #plt.savefig(f'Figuras/TG_T1_OPT_{city_name}', facecolor='white', dpi=600)
+        plt.savefig(f'Figuras/TG_T1_OPT_{city_name}', facecolor='white', dpi=200)
         plt.show(block=False)
 
     return sig_params, rel_rmse_list

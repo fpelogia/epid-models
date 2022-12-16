@@ -89,6 +89,6 @@ def get_transition_points(data, visual=False, city_name = "", threshold = 3e-5, 
         plt.legend()
         plt.tight_layout()
         #plt.savefig(f'{city_name}_nw', facecolor='white', dpi=200)
-        plt.savefig(f'Figuras/TG_T1_NW_{city_name}', facecolor='white', dpi=600)
+        plt.savefig(f'Figuras/TG_T1_NW_{city_name}', facecolor='white', dpi=200)
         plt.show(block=False)
     return x_t
