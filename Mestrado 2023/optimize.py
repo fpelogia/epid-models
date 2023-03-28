@@ -32,11 +32,25 @@ def MSE(x):
     y_m = model(t[:n_days], A, tp, delta, nu)
     return (1/len(y_t))*np.sum((y_t - y_m)**2)
 
+# Mean of Time Square Error (ITSE)
+def MTSE(x):
+    # model parameters
+    A = x[0]
+    tp = x[1]
+    delta = x[2]
+    nu = x[3]
+
+    y_t = acc_data[:n_days]
+    y_m = model(t[:n_days], A, tp, delta, nu)
+    return np.mean(t[:n_days]*(y_t - y_m)**2)
+
 def loss_f(x, lf):
     if(lf == 'MSE'):
         return MSE(x)
     elif(lf == 'ITSE'):
         return ITSE(x)
+    elif(lf == 'MTSE'):
+        return MTSE(x)
     else:
         return MSE(x)
 
@@ -167,9 +181,8 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
             if (n_weeks_pred > 0):
                 axs[i][0].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(acc_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
             axs[i][0].plot(scaling_factor * y_m, label='Model', c='r')
-            axs[i][0].set_xlabel('t (dias)')
-            #axs[i][0].set_ylabel(f'acc. number of {indicator}')
-            axs[i][0].set_ylabel(f'núm. de casos')
+            axs[i][0].set_xlabel('t (days)')
+            axs[i][0].set_ylabel(f'acc. number of {indicator}')
             axs[i][0].legend(loc=4)
             axs[i][0].text(0, scaling_factor * 0.96 * max(y_t), f'rel. RMSE: {round(100*rel_rmse, 3)}%')
 
@@ -207,9 +220,8 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
             axs[i][1].plot(scaling_factor * np.array(y_m_daily), label='Model', c='r')
             if (n_weeks_pred > 0):
                 axs[i][1].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(daily_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
-            axs[i][1].set_xlabel('t (dias)')
-            #axs[i][1].set_ylabel(f'daily number of {indicator}')
-            axs[i][1].set_ylabel(f'núm. diário de casos')
+            axs[i][1].set_xlabel('t (days)')
+            axs[i][1].set_ylabel(f'daily number of {indicator}')
             axs[i][1].legend(loc=2) # upper left    
         n_sig += 1
         sig_params.append([A, tp, delta, nu])
@@ -222,7 +234,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
         plt.savefig(f'Figuras/TG_T1_OPT_{city_name}', facecolor='white', dpi=200)
         plt.show(block=False)
 
-    return sig_params, rel_rmse_list
+    return sig_params, rel_rmse_list, y_m
 
 
 
