@@ -32,8 +32,8 @@ def MSE(x):
     y_m = model(t[:n_days], A, tp, delta, nu)
     return (1/len(y_t))*np.sum((y_t - y_m)**2)
 
-# Mean of Time Square Error (ITSE)
-def MTSE(x):
+# Integral (Sum) of Time Square Error (ITSE) normalized
+def ITSE_norm(x):
     # model parameters
     A = x[0]
     tp = x[1]
@@ -42,15 +42,15 @@ def MTSE(x):
 
     y_t = acc_data[:n_days]
     y_m = model(t[:n_days], A, tp, delta, nu)
-    return np.mean(t[:n_days]*(y_t - y_m)**2)
+    return np.mean(t[:n_days]*(y_t - y_m)**2) ## "Mean(TSE)"
 
 def loss_f(x, lf):
     if(lf == 'MSE'):
         return MSE(x)
     elif(lf == 'ITSE'):
         return ITSE(x)
-    elif(lf == 'MTSE'):
-        return MTSE(x)
+    elif(lf == 'ITSE_norm'):
+        return ITSE_norm(x)
     else:
         return MSE(x)
 
