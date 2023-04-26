@@ -33,21 +33,31 @@ def butterworth_lowpass_filter(data, cutoff_freq, fs, order=2):
     return y
 
 def filter_data(data):    
+    plt.figure(figsize=(10,6))
+    plt.plot(data)
     # Moving average with 21-day window
     filtered_data = moving_average(data, 14)
-    
+    plt.plot(filtered_data, label='ma')
+
     # 2nd Order Low-Pass Filter with 14-day window
     order = 2
     fs = len(data) # sampling rate       
-    cutoff = 14 # cutoff freq.
+    cutoff = 21 # cutoff freq.
     filtered_data =  butterworth_lowpass_filter(filtered_data, cutoff, fs, order)
+    plt.plot(filtered_data, label='bw')
 
     # Median filter with 14-day window
     filtered_data = median_filter(filtered_data, 14)
 
+    plt.plot(filtered_data, label='me')
+
     # Reduce the delay effect introduced by the filtering process
     # Advance the signal by 25 days
     filtered_data = filtered_data[25:]
+
+    plt.plot(filtered_data, label='shift')
+    plt.legend()
+    plt.show()
 
     return filtered_data
 
@@ -126,6 +136,6 @@ def get_transition_points(data, visual=False, city_name = "", threshold = 3e-5, 
         axs[2].scatter(x_t, y_t, s=15, c='r', zorder=2, label="sign change in the second derivative")
         plt.legend()
         plt.tight_layout()
-        #plt.savefig(f'{city_name}_nw', facecolor='white', dpi=200)
+        plt.savefig(f'Figuras/{city_name}_nw', facecolor='white', dpi=200)
         plt.show(block=False)
     return x_t

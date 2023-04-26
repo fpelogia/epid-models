@@ -111,7 +111,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
     # set font-size
     plt.rcParams.update({'font.size': 12})
     if(visual):
-        fig, axs = plt.subplots(len(x_nw), 2, figsize=(18,12 + 5*(n_sig % 3)))
+        fig, axs = plt.subplots(len(x_nw), 2, figsize=(18,12 + 6*(n_sig % 3)))
         #fig.suptitle(f'Teste 1 - {city_name}')
         fig.suptitle(f'{city_name}')
 
@@ -156,7 +156,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
 
         # Relative RMSE   (np.sqrt(MSE)/max(acc_data))
         rel_rmse = np.sqrt(sol.fun) / max(acc_data[:n_days])
-        rel_rmse_list.append(f'{round(100*rel_rmse, 3)}%')
+        rel_rmse_list.append(f'{round(100*rel_rmse, 3)}%')     
         #print('rRMSE: ', rel_rmse)
 
         # Optimal values
@@ -177,6 +177,12 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
             # Plotting Model vs Data
             #fig, axs = plt.subplots(1, 2, figsize=[15,5])
             #plt.xlim(x_nw[i] - 7*(n_weeks_pred + 1), x_nw[i])
+
+
+            mse_all = (1/len(y_t))*np.sum((y_t - y_m)**2)
+            rel_rmse_all = np.sqrt(mse_all) / max(acc_data[:n_days]) 
+            print(f'RMSE: {np.sqrt(mse_all)} | Max(acc_data): {max(acc_data[:n_days])} | Rel. RMSE: {round(100*rel_rmse_all, 3)}')
+
             axs[i][0].scatter(t[:n_days], scaling_factor *acc_data[:n_days], label='Data', c='gray')
             if (n_weeks_pred > 0):
                 axs[i][0].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(acc_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
@@ -184,7 +190,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
             axs[i][0].set_xlabel('t (days)')
             axs[i][0].set_ylabel(f'acc. number of {indicator}')
             axs[i][0].legend(loc=4)
-            axs[i][0].text(0, scaling_factor * 0.96 * max(y_t), f'rel. RMSE: {round(100*rel_rmse, 3)}%')
+            axs[i][0].text(0, scaling_factor * 0.96 * max(y_t), f'rel. RMSE: {round(100*rel_rmse_all, 3)}%')         
 
         if (n_weeks_pred > 0):
             X_detail = t[n_days - 7*n_weeks_pred: n_days]
@@ -231,7 +237,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
         plt.tight_layout(rect=[0, 0, 1, 0.98])
         #plt.savefig(f'output/Daily_{city_name}_2w_pred', facecolor='white', dpi=100)
         #plt.savefig(f'ESTADOSP/{city_name}', facecolor='white', dpi=200)
-        plt.savefig(f'Figuras/TG_T1_OPT_{city_name}', facecolor='white', dpi=200)
+        plt.savefig(f'Figuras/{city_name}_opt_{indicator}', facecolor='white', dpi=200)
         plt.show(block=False)
 
     return sig_params, rel_rmse_list, y_m
