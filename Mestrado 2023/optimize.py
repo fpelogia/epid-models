@@ -107,11 +107,12 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
     n_sig = 1
     sig_params = []
     rel_rmse_list = []
+    rmse_list = []
 
     # set font-size
     plt.rcParams.update({'font.size': 12})
     if(visual):
-        fig, axs = plt.subplots(len(x_nw), 2, figsize=(18,12 + 6*(n_sig % 3)))
+        fig, axs = plt.subplots(len(x_nw), 2, figsize=(18,12 + 7*(n_sig % 3)))
         #fig.suptitle(f'Teste 1 - {city_name}')
         fig.suptitle(f'{city_name}')
 
@@ -155,8 +156,10 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
         #    sol = minimize(loss_f_sym, x0, constraints=cons, args=('MSE'), method='SLSQP')
 
         # Relative RMSE   (np.sqrt(MSE)/max(acc_data))
-        rel_rmse = np.sqrt(sol.fun) / max(acc_data[:n_days])
-        rel_rmse_list.append(f'{round(100*rel_rmse, 3)}%')     
+        #rel_rmse = np.sqrt(sol.fun) / max(acc_data[:n_days])
+        #rmse = np.sqrt(sol.fun)
+        #rel_rmse_list.append(f'{round(100*rel_rmse, 3)}%')     
+        #rmse_list.append(f'{round(rmse, 3)}')     
         #print('rRMSE: ', rel_rmse)
 
         # Optimal values
@@ -180,15 +183,22 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
 
 
             mse_all = (1/len(y_t))*np.sum((y_t - y_m)**2)
-            rel_rmse_all = np.sqrt(mse_all) / max(acc_data[:n_days]) 
-            print(f'RMSE: {np.sqrt(mse_all)} | Max(acc_data): {max(acc_data[:n_days])} | Rel. RMSE: {round(100*rel_rmse_all, 3)}')
+            rel_rmse_all = np.sqrt(mse_all) / max(acc_data[:n_days])
+            print(f'n_days: {n_days} | len(y_m): {len(y_m)}')
+             
+            print(f'RMSE: {np.sqrt(mse_all)} | Max(acc_data): {max(acc_data[:n_days])} | Rel. RMSE: {round(100*rel_rmse_all, 3)}%')
+            rmse_list.append(f'{round(np.sqrt(mse_all), 3)}') 
+            rel_rmse_list.append(f'{round(100*rel_rmse_all, 3)}%')     
 
             axs[i][0].scatter(t[:n_days], scaling_factor *acc_data[:n_days], label='Data', c='gray')
             if (n_weeks_pred > 0):
                 axs[i][0].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(acc_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
             axs[i][0].plot(scaling_factor * y_m, label='Model', c='r')
+            
             axs[i][0].set_xlabel('t (days)')
-            axs[i][0].set_ylabel(f'acc. number of {indicator}')
+            if(i == 0):                
+                axs[i][0].set_ylabel(f'acc. number of {indicator}')
+            
             axs[i][0].legend(loc=4)
             axs[i][0].text(0, scaling_factor * 0.96 * max(y_t), f'rel. RMSE: {round(100*rel_rmse_all, 3)}%')         
 
@@ -226,8 +236,11 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
             axs[i][1].plot(scaling_factor * np.array(y_m_daily), label='Model', c='r')
             if (n_weeks_pred > 0):
                 axs[i][1].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(daily_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
+            
             axs[i][1].set_xlabel('t (days)')
-            axs[i][1].set_ylabel(f'daily number of {indicator}')
+            
+            if (i == 0):
+                axs[i][1].set_ylabel(f'daily number of {indicator}')
             axs[i][1].legend(loc=2) # upper left    
         n_sig += 1
         sig_params.append([A, tp, delta, nu])
