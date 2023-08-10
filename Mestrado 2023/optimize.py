@@ -107,6 +107,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
     n_sig = 1
     sig_params = []
     rel_rmse_list = []
+    rel_rmse_list_pred = []
     rmse_list = []
 
     # set font-size
@@ -211,6 +212,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
             y_m_pred = Y_detail
             mse_pred = (1/len(y_t_pred))*np.sum((y_t_pred - y_m_pred)**2)
             rel_rmse_pred = np.sqrt(mse_pred) / max(acc_data[:n_days])
+            rel_rmse_list_pred.append(f'{round(100*rel_rmse_pred, 3)}%')
 
             #print('rRMSE Predictions: ', rel_rmse_pred)
             if(visual):
@@ -253,7 +255,7 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
         plt.savefig(f'Figuras/{city_name}_opt_{indicator}', facecolor='white', dpi=200)
         plt.show(block=False)
 
-    return sig_params, rel_rmse_list, y_m
+    return sig_params, rel_rmse_list, rel_rmse_list_pred, y_m
 
 
 
