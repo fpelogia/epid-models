@@ -89,6 +89,9 @@ def new_wave_detection(sec_der, abs_threshold):
 #  optional (city_name): city name 
 #  optional (threshold): threshold 
 def get_transition_points(data, visual=False, city_name = "", threshold = 3e-5, indicator = 'cases'):    
+    
+    plt.rcParams.update({'font.size': 18})
+
     # Normalize by maximum value
     normalized_acc_n_cases = data / max(data)
 
@@ -113,7 +116,8 @@ def get_transition_points(data, visual=False, city_name = "", threshold = 3e-5, 
         # Graph with acc. data and its first two derivatives
         fig, axs = plt.subplots(3, 1, figsize=(10,14)) # 3 rows, 1 col
         plt.tight_layout(pad=1.5)
-        plt.suptitle(f"{city_name} threshold {abs_threshold} ", fontsize=16)
+        #plt.suptitle(f"{city_name} threshold {abs_threshold} ", fontsize=16)
+        plt.suptitle(f"{city_name}", fontsize=24)
         axs[0].plot(normalized_acc_n_cases) # para alinhar as retas de nova onda
         axs[0].vlines(x_t, 1, 3e-4, colors='dimgray', linestyles='dashdot', zorder=1, label="new wave transition")
         axs[0].set_title(f'Normalized accumulated number of {indicator}')
@@ -127,6 +131,7 @@ def get_transition_points(data, visual=False, city_name = "", threshold = 3e-5, 
         axs[1].set_ylabel(f"${indicator}$ / $day$")
 
         axs[2].ticklabel_format(axis='y',style='sci',scilimits=(-4,-4))
+        axs[2].set_ylim(-2e-4, 2e-4)
         axs[2].set_title("Second derivative - New wave detection")
         axs[2].set_xlabel("t (days)")
         axs[2].set_ylabel(f"${indicator}$ / $day^2$")

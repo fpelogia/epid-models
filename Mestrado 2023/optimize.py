@@ -81,7 +81,7 @@ initial_cond = lambda y_t : []
 
 update_cond = lambda tp0A0 : [] 
 
-def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_weeks_pred = 2, scaling_factor = 1, visual = True, loss_function ='MSE'):
+def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_weeks_pred = 2, scaling_factor = 1, visual = True, loss_function ='MSE', transpose = False):
     global acc_data
     global daily_data
     global n_days
@@ -111,11 +111,21 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
     rmse_list = []
 
     # set font-size
-    plt.rcParams.update({'font.size': 12})
+    plt.rcParams.update({'font.size': 18})
+
     if(visual):
-        fig, axs = plt.subplots(len(x_nw), 2, figsize=(18,12 + 7*(n_sig % 3)))
-        #fig.suptitle(f'Teste 1 - {city_name}')
-        fig.suptitle(f'{city_name}')
+        if(not transpose): # Vertical
+            fig, axs = plt.subplots(len(x_nw), 2, figsize=(22,18 + 7*(n_sig % 3)), constrained_layout=True)
+            fig.suptitle(f'{city_name}', fontsize=28)
+            axs[0,0].set_title('(a)\n', fontsize=28)
+            axs[0,1].set_title('(b)\n', fontsize=28)
+
+        else: # Horizontal 
+            fig, axs = plt.subplots(2, len(x_nw), figsize=(25, 12), constrained_layout=True)
+            fig.suptitle(f'{city_name}', fontsize=28)
+            #axs[0,0].set_title('(a)\n', fontsize=28)
+            #axs[0,1].set_title('(b)\n', fontsize=28)            
+
 
     for i in range(len(x_nw)):
         n_days = x_nw[i] - 7*n_weeks_pred
@@ -191,17 +201,30 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
             rmse_list.append(f'{round(np.sqrt(mse_all), 3)}') 
             rel_rmse_list.append(f'{round(100*rel_rmse_all, 3)}%')     
 
-            axs[i][0].scatter(t[:n_days], scaling_factor *acc_data[:n_days], label='Data', c='gray')
-            if (n_weeks_pred > 0):
-                axs[i][0].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(acc_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
-            axs[i][0].plot(scaling_factor * y_m, label='Model', c='r')
-            
-            axs[i][0].set_xlabel('t (days)')
-            if(i == 0):                
-                axs[i][0].set_ylabel(f'acc. number of {indicator}')
-            
-            axs[i][0].legend(loc=4)
-            axs[i][0].text(0, scaling_factor * 0.96 * max(y_t), f'rel. RMSE: {round(100*rel_rmse_all, 3)}%')         
+            if(not transpose):
+                axs[i][0].scatter(t[:n_days], scaling_factor *acc_data[:n_days], label='Data', c='gray')
+                if (n_weeks_pred > 0):
+                    axs[i][0].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(acc_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
+                axs[i][0].plot(scaling_factor * y_m, label='Model', c='r')
+                
+                axs[i][0].set_xlabel('t (days)')
+                if(i == 0):                
+                    axs[i][0].set_ylabel(f'acc. number of {indicator}')
+                
+                axs[i][0].legend(loc=4)
+                axs[i][0].text(0, scaling_factor * 0.96 * max(y_t), f'rel. RMSE: {round(100*rel_rmse_all, 3)}%')         
+            else:
+                axs[0][i].scatter(t[:n_days], scaling_factor *acc_data[:n_days], label='Data', c='gray')
+                if (n_weeks_pred > 0):
+                    axs[0][i].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(acc_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
+                axs[0][i].plot(scaling_factor * y_m, label='Model', c='r')
+                
+                axs[0][i].set_xlabel('t (days)')
+                if(i == 0):                
+                    axs[0][i].set_ylabel(f'acc. number of {indicator}')
+                
+                axs[0][i].legend(loc=4)
+                axs[0][i].text(0, scaling_factor * 0.96 * max(y_t), f'rel. RMSE: {round(100*rel_rmse_all, 3)}%')         
 
         if (n_weeks_pred > 0):
             X_detail = t[n_days - 7*n_weeks_pred: n_days]
@@ -216,34 +239,63 @@ def fit_data(acc_data_p, daily_data_p, city_name, x_nw, indicator='cases', n_wee
 
             #print('rRMSE Predictions: ', rel_rmse_pred)
             if(visual):
-                axs[i][0].text(0, scaling_factor *0.87*max(y_t), f'rel. RMSE Predictions: {round(100*rel_rmse_pred, 3)}%')
-    
-                # detail prediction
-                if(n_sig < 4):
-                    sub_axes = axs[i][0].inset_axes([.17, .45, .25, .35]) 
+
+                if(not transpose):
+                    axs[i][0].text(0, scaling_factor *0.87*max(y_t), f'rel. RMSE Pred.: {round(100*rel_rmse_pred, 3)}%')
+        
+                    # detail prediction
+                    # if(n_sig < 4):
+                        # sub_axes = axs[i][0].inset_axes([.17, .45, .25, .35])
+                    # else:
+                    sub_axes = axs[i][0].inset_axes([.45, .15, .25, .25]) 
+                    
+                    sub_axes.scatter(t[n_days - 7*n_weeks_pred:n_days], scaling_factor *acc_data[n_days - 7*n_weeks_pred:n_days], label='Data', c='gray')
+                    sub_axes.plot(X_detail, scaling_factor *Y_detail, c = 'r') 
+                    #sub_axes.set_xticks(X_detail[0::3])
+                    axs[i][0].indicate_inset_zoom(sub_axes, edgecolor="black")    
+                    #plt.savefig(f'output/Acc_{city_name}_{n_sig}_sig', facecolor='white', dpi=100)
                 else:
-                    sub_axes = axs[i][0].inset_axes([.6, .15, .25, .25]) 
-                sub_axes.scatter(t[n_days - 7*n_weeks_pred:n_days], scaling_factor *acc_data[n_days - 7*n_weeks_pred:n_days], label='Data', c='gray')
-                sub_axes.plot(X_detail, scaling_factor *Y_detail, c = 'r') 
-                #sub_axes.set_xticks(X_detail[0::3])
-                axs[i][0].indicate_inset_zoom(sub_axes, edgecolor="black")    
-                #plt.savefig(f'output/Acc_{city_name}_{n_sig}_sig', facecolor='white', dpi=100)
+                    axs[0][i].text(0, scaling_factor *0.87*max(y_t), f'rel. RMSE Pred.: {round(100*rel_rmse_pred, 3)}%')
+        
+                    # detail prediction
+                    if(n_sig > 1):
+                        sub_axes = axs[0][i].inset_axes([.17, .40, .25, .25])
+                    else:
+                        sub_axes = axs[0][i].inset_axes([.45, .15, .25, .25]) 
+                    
+                    sub_axes.scatter(t[n_days - 7*n_weeks_pred:n_days], scaling_factor *acc_data[n_days - 7*n_weeks_pred:n_days], label='Data', c='gray')
+                    sub_axes.plot(X_detail, scaling_factor *Y_detail, c = 'r') 
+                    #sub_axes.set_xticks(X_detail[0::3])
+                    axs[0][i].indicate_inset_zoom(sub_axes, edgecolor="black")    
+                    #plt.savefig(f'output/Acc_{city_name}_{n_sig}_sig', facecolor='white', dpi=100)
 
 
         # Plotting Daily Data
 
         #axs[i][1].set_title(f'{city_name} - Model x Daily data')
         if(visual):
-            axs[i][1].plot(scaling_factor * np.array(daily_data[:n_days]), label="Data", c='gray', lw=0.8, linestyle='dashed')
-            axs[i][1].plot(scaling_factor * np.array(y_m_daily), label='Model', c='r')
-            if (n_weeks_pred > 0):
-                axs[i][1].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(daily_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
-            
-            axs[i][1].set_xlabel('t (days)')
-            
-            if (i == 0):
-                axs[i][1].set_ylabel(f'daily number of {indicator}')
-            axs[i][1].legend(loc=2) # upper left    
+            if(not transpose):
+                axs[i][1].plot(scaling_factor * np.array(daily_data[:n_days]), label="Data", c='gray', lw=0.8, linestyle='dashed')
+                axs[i][1].plot(scaling_factor * np.array(y_m_daily), label='Model', c='r')
+                if (n_weeks_pred > 0):
+                    axs[i][1].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(daily_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
+                
+                axs[i][1].set_xlabel('t (days)')
+                
+                if (i == 0):
+                    axs[i][1].set_ylabel(f'daily number of {indicator}')
+                axs[i][1].legend(loc=2) # upper left    
+            else:
+                axs[1][i].plot(scaling_factor * np.array(daily_data[:n_days]), label="Data", c='gray', lw=0.8, linestyle='dashed')
+                axs[1][i].plot(scaling_factor * np.array(y_m_daily), label='Model', c='r')
+                if (n_weeks_pred > 0):
+                    axs[1][i].vlines(n_days - 7*n_weeks_pred, 0, scaling_factor * max(daily_data[:n_days]), colors='dimgray', linestyles='dashdot', zorder=1, label=f"Last {7*n_weeks_pred} days")
+                
+                axs[1][i].set_xlabel('t (days)')
+                
+                if (i == 0):
+                    axs[1][i].set_ylabel(f'daily number of {indicator}')
+                axs[1][i].legend(loc=2) # upper left    
         n_sig += 1
         sig_params.append([A, tp, delta, nu])
         #print(f'Parameters: {sig_params}\n==================================')    
